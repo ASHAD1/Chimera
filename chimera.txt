@@ -1,0 +1,157 @@
+/*
+ *
+ *
+ * Created: 03-06-2015 11:42:07
+ *  Author: ASHAD FARHAN
+ */ 
+#include <math.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+long long count,overflow,h;
+volatile char i;
+uint16_t adcValue;
+
+void Delay(int dlay)                                            //unit of delay time is milliSeconds
+{
+	if(dlay <= 3000)                                            //if delay is less than 3000mSec 
+	{
+		count =  lrint((dlay*F_CPU)/(1024LL*1000LL));
+		TCCR1B |= (1<<CS10)|(1<<CS12);                           //setting prescaler
+		TCNT1 = 0;                                                //initialize timer
+		
+		while(1)
+		{
+			if (TCNT1 >= count)
+			{
+				return 0;                                           //return to main program
+			}
+			
+		}
+	}
+	
+	else 
+	{
+		
+		overflow = 0;
+		count = lrint((dlay*F_CPU)/(65536LL*1000LL));
+		
+		TCCR1B |= (1<<CS10);                                              //setting prescaler
+		TCNT1 = 0;                                                                  //initialize timer
+		TIMSK |= (1<<TOIE1);                                              //enable timer interrupt
+		sei();
+		while(1)
+		{
+			if (i == 1)
+			{
+				i = 0;
+				return 0;                                                     //return to main program
+			}
+		}
+	
+		
+	}
+}
+
+ISR(TIMER1_OVF_vect)                       //timer overflow interrupt
+{
+	overflow++;
+	if (overflow>=count)
+	{
+		overflow = 0;
+		i  = 1;
+	}
+}
+
+int DelayMicro(int dlay)
+{
+	count = lrint((dlay*F_CPU)/1000000ll);                                         
+	TCCR1B |= (1<<CS00);                                               //setting prescaler
+	TCNT1 = 0;                                                    //initialize timer
+	
+	while(1)
+	{
+		if (TCNT1 >= count)
+		{
+			return 0;
+		}
+		
+	}
+}
+
+void aWPin(unsigned char pin)                      //analog Write initialize with pin, 0 for OCR0           
+{
+	DDRB |= (8<<0);
+	TCCR0 |= (1<<CS00)|(1<<COM01)|(1<<WGM00);
+}
+
+void aWrite(uint16_t duty)                               //analog Write, 8 bit resolution, duty cycle varies from 0 to 255
+{
+	OCR0 = duty;
+}
+
+void aRPin(unsigned char pin)                  //analog Read initializing, 0-7 for  ADC0-ADC7 pins.
+{
+	if(pin == 1)
+	{
+		ADMUX |= (1<<MUX0);
+	}
+	if (pin == 2)
+	{
+		ADMUX |= (1<<MUX1);
+	}
+	if (pin == 3)
+	{
+		ADMUX |= (1<<MUX0)|(1<<MUX1);
+	}
+	if (pin == 4)
+	{
+		ADMUX |= (1<<MUX2);
+	}
+	if (pin == 5)
+	{
+		ADMUX |= (1<<MUX0)|(1<<MUX2);
+	}
+	if (pin == 6)
+	{
+		ADMUX |= (1<<MUX1)|(1<<MUX2);
+	}
+	if (pin == 7)
+	{
+		ADMUX |= (1<<MUX0)|(1<<MUX1)|(1<<MUX2);
+	}
+	ADCSRA |= 1<<ADIE;
+	sei();
+	ADMUX |= 1<<REFS0;
+	ADMUX |= 1<<ADLAR;
+	if (F_CPU == 1000000)
+	{
+		ADCSRA = 1<<ADPS2;
+	}
+	else
+	{
+		ADCSRA |= (1<<ADPS0)|(1<<ADPS1)|(1<<ADPS2);
+	}
+	ADCSRA |= 1<<ADEN;
+	
+}
+
+int aRead(void)                               //analog Read, 8 bit resolution, duty cycle varies from 0 to 255
+{
+	ADCSRA |= 1<<ADSC;
+	while (1)
+	{
+		if (i == 2)
+		{
+			i = 0;
+			return adcValue;
+		}
+	}
+}
+
+ISR(ADC_vect)                            //interrupt for ADC
+{
+	adcValue = ADCH;
+	i = 2;
+}
+
