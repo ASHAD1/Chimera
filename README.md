@@ -1,5 +1,5 @@
 # Chimera
-This is the header file for Avr programming usng C, by using this header file avr programming will be as simpple as arduino programming
+This is the header file for Avr programming usng C, by using this header file avr programming will be as simple as arduino programming
 
  Instrucions( for Atmel studio)
 1. create a new Include file. Rename it as chimera.h
