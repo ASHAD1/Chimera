@@ -33,6 +33,6 @@ NOTE- for this program I have used atmega16A with 12Mhz clock.
 
    aWPin(x);  //analog Write initialize with pin; x = 0 for OCR0. use it before while(1) loop.
    
-   aWrite(x);  //x is the duty cycle, duty cycle varies from 0 to 255. use it in While(1) loop, where you to read.
+   aWrite(x);  //x is the duty cycle, duty cycle varies from 0 to 255. use it in While(1) loop, where you want to read.
    
  
