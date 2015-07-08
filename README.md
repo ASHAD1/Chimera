@@ -13,7 +13,7 @@ It has delay in milliseconds and microseconds, ADC(analog read), PWM(analog Writ
 It can be used for differnt clock frequencies, just define it initially at the start of the program, it shoud terminate by ll(long long)
  ex. for 1Mhz define F_CPU 1000000ll 
 
-NOTE- for this I have used atmega16A with 12Mhz clock.
+NOTE- for this program I have used atmega16A with 12Mhz clock.
 
 1. Delay in milliseconds
 
@@ -26,11 +26,13 @@ NOTE- for this I have used atmega16A with 12Mhz clock.
 3. analod Read, ADC.
 
    aRPin(x);  //analog Read initializing; x is pin, 0-7 for  ADC0-ADC7 pins. use this before while(1) loop.
+   
    aRead();   //use this in while(1) loop where you want to read. 8 bit resolution
    
 4. analog Write, PWM.
 
    aWPin(x);  //analog Write initialize with pin; x = 0 for OCR0. use it before while(1) loop.
+   
    aWrite(x);  //x is the duty cycle, duty cycle varies from 0 to 255. use it in While(1) loop, where you to read.
    
  
